@@ -1,0 +1,40 @@
+<workflow-app xmlns='uri:oozie:workflow:0.5' name='OoizeSpark'>
+    <start to='save'/>
+
+    <action name='save'>
+        <spark xmlns="uri:oozie:spark-action:0.2">
+            <job-tracker>${jobTracker}</job-tracker>
+            <name-node>${nameNode}</name-node>
+            <configuration>
+                <property>
+                    <name>oozie.launcher.mapreduce.task.classpath.user.precedence</name>
+                    <value>false</value>
+                </property>
+                <property>
+                    <name>oozie.launcher.mapreduce.user.classpath.first</name>
+                    <value>false</value>
+                </property>
+                <property>
+                    <name>mapred.job.queue.name</name>
+                    <value>${queueName}</value>
+                </property>
+
+            </configuration>
+            <master>${master}</master>
+            <mode>${deployMode}</mode>
+            <name>OoizeSpark</name>
+            <class>${mainClass}</class>
+            <jar>${jarPath}/lib/ooziejob.jar</jar>
+            <spark-opts>${sparkopts}</spark-opts>
+        </spark>
+        <ok to="end"/>
+        <error to="fail"/>
+    </action>
+
+    <kill name="fail">
+        <message>Workflow failed, error
+            message[${wf:errorMessage(wf:lastErrorNode())}]
+        </message>
+    </kill>
+    <end name='end'/>
+</workflow-app>

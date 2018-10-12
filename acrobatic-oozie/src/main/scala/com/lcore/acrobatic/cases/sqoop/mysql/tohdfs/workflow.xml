@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<workflow-app xmlns="uri:oozie:workflow:0.2" name="sqoop-tohdfs">
+    <start to="sqoop-tohdfs"/>
+
+    <action name="sqoop-tohdfs">
+        <sqoop xmlns="uri:oozie:sqoop-action:0.2">
+            <job-tracker>${jobTracker}</job-tracker>
+            <name-node>${nameNode}</name-node>
+            <configuration>
+                <property>
+                    <name>mapred.job.queue.name</name>
+                    <value>${queueName}</value>
+                </property>
+
+                <property>
+                    <name>mapreduce.job.user.classpath.first</name>
+                    <value>true</value>
+                </property>
+            </configuration>
+            <command>
+import --connect jdbc:mysql://vhost1:3306/yss --username root --password root --table workers --target-dir /jobs/oozie/out/sqoop/tohdfs --delete-target-dir --input-fields-terminated-by '#' -m 1
+            </command>
+        </sqoop>
+        <ok to="end"/>
+        <error to="fail"/>
+    </action>
+
+    <kill name="fail">
+        <message>Sqoop failed, error message[${wf:errorMessage(wf:lastErrorNode())}]</message>
+    </kill>
+    <end name="end"/>
+</workflow-app>

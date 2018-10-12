@@ -1,0 +1,58 @@
+<workflow-app xmlns="uri:oozie:workflow:0.5" name="tohdfs">
+    <start to="tohdfs"/>
+    <action name="tohdfs">
+        <sqoop xmlns="uri:oozie:sqoop-action:0.2">
+            <job-tracker>${jobTracker}</job-tracker>
+            <name-node>${nameNode}</name-node>
+            <configuration>
+                <property>
+                    <name>mapred.job.queue.name</name>
+                    <value>${queueName}</value>
+                </property>
+
+                <property>
+                    <name>mapreduce.job.user.classpath.first</name>
+                    <value>true</value>
+                </property>
+                <property>
+                    <name>hive.metastore.uris</name>
+                    <value>thrift://vhost1:9083</value>
+                </property>
+            </configuration>
+            <!--<command>
+                import &#45;&#45;connect jdbc:mysql://vhost1:3306/yss &#45;&#45;table workers &#45;&#45;username root &#45;&#45;password root &#45;&#45;fields-terminated-by ',' &#45;&#45;hive-import &#45;&#45;hive-database dbtest &#45;&#45;hive-table workers &#45;&#45;num-mappers 1
+            </command>-->
+            <arg>import</arg>
+            <arg>--connect</arg>
+            <arg>jdbc:mysql://vhost1:3306/yss</arg>
+            <arg>--table</arg>
+            <arg>workers</arg>
+            <arg>--username</arg>
+            <arg>root</arg>
+            <arg>--password</arg>
+            <arg>root</arg>
+            <arg>--fields-terminated-by</arg>
+            <arg>','</arg>
+            <arg>--delete-target-dir</arg>
+            <arg>--hive-home</arg>
+            <arg>/home/soft/hive</arg>
+            <arg>--hive-import</arg>
+            <arg>--hive-database</arg>
+            <arg>dbtest</arg>
+            <arg>--hive-table</arg>
+            <arg>workers</arg>
+            <arg>--hive-overwrite</arg>
+            <arg>--num-mappers</arg>
+            <arg>1</arg>
+        </sqoop>
+        <ok to="end"/>
+        <error to="fail"/>
+    </action>
+
+    <kill name="fail">
+        <message>sqoop failed, error
+            message[${wf:errorMessage(wf:lastErrorNode())}]
+        </message>
+    </kill>
+    <end name='end'/>
+</workflow-app>
