@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<workflow-app xmlns='uri:oozie:workflow:0.5' name='ShSFHG'>
+    <start to='etl'/>
+
+    <action name='etl'>
+        <spark xmlns="uri:oozie:spark-action:0.2">
+            <job-tracker>${jobTracker}</job-tracker>
+            <name-node>${nameNode}</name-node>
+            <configuration>
+                <property>
+                    <name>oozie.launcher.mapreduce.task.classpath.user.precedence</name>
+                    <value>false</value>
+                </property>
+                <property>
+                    <name>oozie.launcher.mapreduce.user.classpath.first</name>
+                    <value>false</value>
+                </property>
+                <property>
+                    <name>mapred.job.queue.name</name>
+                    <value>${queueName}</value>
+                </property>
+            </configuration>
+            <master>${master}</master>
+            <mode>${deployMode}</mode>
+            <name>ShSFHG_TEL</name>
+            <class>${ETL}</class>
+            <jar>${jarPath}/lib/guzhi.jar</jar>
+            <spark-opts>${sparkopts}</spark-opts>
+            <arg>${jsmxpath}</arg>
+            <arg>${wdqpath}</arg>
+        </spark>
+        <ok to="end"/>
+        <error to="fail"/>
+    </action>
+
+    <action name="cacul">
+        <spark xmlns="uri:oozie:spark-action:0.2">
+            <job-tracker>${jobTracker}</job-tracker>
+            <name-node>${nameNode}</name-node>
+            <configuration>
+                <property>
+                    <name>oozie.launcher.mapreduce.task.classpath.user.precedence</name>
+                    <value>false</value>
+                </property>
+                <property>
+                    <name>oozie.launcher.mapreduce.user.classpath.first</name>
+                    <value>false</value>
+                </property>
+                <property>
+                    <name>mapred.job.queue.name</name>
+                    <value>${queueName}</value>
+                </property>
+            </configuration>
+            <master>${master}</master>
+            <mode>${deployMode}</mode>
+            <name>ShSFHG_CACULATE</name>
+            <class>${CACULATE}</class>
+            <jar>${jarPath}/lib/guzhi.jar</jar>
+            <spark-opts>${sparkopts}</spark-opts>
+        </spark>
+        <ok to="end"/>
+        <error to="fail"/>
+    </action>
+    <kill name="fail">
+        <message>Workflow failed, error
+            message[${wf:errorMessage(wf:lastErrorNode())}]
+        </message>
+    </kill>
+    <end name='end'/>
+</workflow-app>
